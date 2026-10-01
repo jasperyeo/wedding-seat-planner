@@ -126,6 +126,22 @@ export class App {
     this.selectedGuest.set(null);
   }
 
+  protected deleteGuest(guestId: number): void {
+    this.guests.update(guests => guests.filter(guest => guest.id !== guestId));
+    if (this.selectedGuest() === guestId) this.selectedGuest.set(null);
+  }
+
+  protected reorderGuests(orderedGuestIds: number[]): void {
+    const orderedIdSet = new Set(orderedGuestIds);
+    const guestsById = new Map(this.guests().map(guest => [guest.id, guest]));
+    const orderedGuests = orderedGuestIds.map(id => guestsById.get(id)).filter((guest): guest is Guest => guest !== undefined);
+    let nextOrderedGuest = 0;
+    this.guests.update(guests => guests.map(guest => {
+      if (!orderedIdSet.has(guest.id)) return guest;
+      return orderedGuests[nextOrderedGuest++];
+    }));
+  }
+
   protected unseat(guestId: number): void {
     this.guests.update(guests => guests.map(guest => guest.id === guestId ? { ...guest, tableId: null } : guest));
   }

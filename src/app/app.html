@@ -23,6 +23,8 @@
         (filterChanged)="activeFilter.set($event)"
         (selectionChanged)="selectedGuest.set($event)"
         (addGuestRequested)="guestDialogVisible.set(true)"
+        (deleteGuestRequested)="deleteGuest($event)"
+        (reorderRequested)="reorderGuests($event)"
       />
       <app-reception-chart
         [guests]="guests()"

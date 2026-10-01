@@ -1,0 +1,7 @@
+<section class="summary-strip" aria-label="Guest seating summary">
+  <div class="summary-item"><span class="summary-icon green"><svg lucideUsers></svg></span><span><strong>{{ totalGuests() }}</strong><small>Total guests</small></span></div>
+  <div class="summary-item"><span class="summary-icon coral"><svg lucideCheck></svg></span><span><strong>{{ confirmedGuests() }}<small class="summary-muted"> / {{ totalGuests() }}</small></strong><small>RSVP confirmed</small></span></div>
+  <div class="summary-item"><span class="summary-icon blue"><svg lucideArmchair></svg></span><span><strong>{{ seatedGuests() }}<small class="summary-muted"> / {{ totalGuests() }}</small></strong><small>Guests seated</small></span></div>
+  <div class="summary-item"><span class="summary-icon gold"><svg lucideUtensils></svg></span><span><strong>{{ tableCount() }}</strong><small>Reception tables</small></span></div>
+  <div class="summary-progress"><div class="progress-label"><span>Seating progress</span><strong>{{ seatingProgress() }}%</strong></div><div class="progress-track"><span [style.width.%]="seatingProgress()"></span></div></div>
+</section>

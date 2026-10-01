@@ -1,0 +1,56 @@
+<div class="planner-shell">
+  <main id="top" class="workspace">
+    <app-wedding-heading (exportRequested)="exportPlan()" />
+
+    <app-summary-strip
+      [totalGuests]="guests().length"
+      [confirmedGuests]="confirmedCount()"
+      [seatedGuests]="seatedCount()"
+      [tableCount]="tables().length"
+      [seatingProgress]="seatingProgress()"
+    />
+
+    <section id="plan" class="planner-grid" aria-label="Seating planner">
+      <app-guest-list
+        [guests]="guests()"
+        [filteredGuests]="filteredGuests()"
+        [activeFilter]="activeFilter()"
+        [selectedGuestId]="selectedGuest()"
+        [unseatedCount]="unseatedCount()"
+        [confirmedCount]="confirmedCount()"
+        [search]="search()"
+        (searchChanged)="search.set($event)"
+        (filterChanged)="activeFilter.set($event)"
+        (selectionChanged)="selectedGuest.set($event)"
+        (addGuestRequested)="guestDialogVisible.set(true)"
+      />
+      <app-reception-chart
+        [guests]="guests()"
+        [tables]="tables()"
+        [selectedGuestId]="selectedGuest()"
+        (addTableRequested)="tableDialogVisible.set(true)"
+        (exportRequested)="exportPlan()"
+        (assignGuestRequested)="assignSelected($event)"
+        (unseatedGuestsRequested)="activeFilter.set('Unseated')"
+      />
+    </section>
+
+  </main>
+</div>
+
+<p-dialog header="Add a guest" [visible]="guestDialogVisible()" (visibleChange)="guestDialogVisible.set($event)" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog" [style]="{ width: 'min(440px, calc(100vw - 32px))' }">
+  <div class="dialog-fields">
+    <label>Full name<input pInputText [ngModel]="guestName()" (ngModelChange)="guestName.set($event)" placeholder="e.g. Alex Morgan" (keyup.enter)="addGuest()" /></label>
+    <label>Guest group<p-select [options]="partyOptions" [ngModel]="guestParty()" (ngModelChange)="guestParty.set($event)" /></label>
+    <label>Meal choice<p-select [options]="mealOptions" [ngModel]="guestMeal()" (ngModelChange)="guestMeal.set($event)" /></label>
+  </div>
+  <ng-template #footer><button class="dialog-cancel" (click)="guestDialogVisible.set(false)">Cancel</button><button class="dialog-submit" [disabled]="!guestName().trim()" (click)="addGuest()"><svg lucidePlus></svg> Add guest</button></ng-template>
+</p-dialog>
+
+<p-dialog header="Add a reception table" [visible]="tableDialogVisible()" (visibleChange)="tableDialogVisible.set($event)" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog" [style]="{ width: 'min(440px, calc(100vw - 32px))' }">
+  <div class="dialog-fields">
+    <label>Table name<input pInputText [ngModel]="newTableName()" (ngModelChange)="newTableName.set($event)" placeholder="e.g. Table 7" (keyup.enter)="addTable()" /></label>
+    <label>Seat capacity<input pInputText type="number" min="2" max="12" [ngModel]="newTableCapacity()" (ngModelChange)="newTableCapacity.set($event)" /></label>
+  </div>
+  <ng-template #footer><button class="dialog-cancel" (click)="tableDialogVisible.set(false)">Cancel</button><button class="dialog-submit" (click)="addTable()"><svg lucidePlus></svg> Add table</button></ng-template>
+</p-dialog>

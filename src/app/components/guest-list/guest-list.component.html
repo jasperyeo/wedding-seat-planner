@@ -1,0 +1,32 @@
+<aside id="guests" class="guest-panel">
+  <div class="panel-heading">
+    <div><h2>Guest list</h2><span class="panel-count">{{ filteredGuests().length }} people</span></div>
+    <button class="icon-button add-guest-icon" aria-label="Add guest" title="Add guest" (click)="addGuestRequested.emit()"><svg lucidePlus></svg></button>
+  </div>
+  <label class="search-field"><svg lucideSearch></svg><input pInputText type="search" placeholder="Find a guest..." [ngModel]="search()" (ngModelChange)="searchChanged.emit($event)" aria-label="Search guests" /><kbd>⌘ K</kbd></label>
+  <div class="filter-tabs" role="tablist" aria-label="Filter guests">
+    @for (filter of filters; track filter) {
+      <button type="button" role="tab" [attr.aria-selected]="activeFilter() === filter" [class.selected]="activeFilter() === filter" (click)="filterChanged.emit(filter)">{{ filter }}<span>{{ filter === 'Everyone' ? guests().length : filter === 'Unseated' ? unseatedCount() : confirmedCount() }}</span></button>
+    }
+  </div>
+  @if (selectedGuestId() !== null) {
+    <div class="selection-hint"><span>Guest selected</span><button (click)="selectionChanged.emit(null)">Cancel</button></div>
+  }
+  <div class="guest-list" aria-live="polite">
+    @for (guest of filteredGuests(); track guest.id) {
+      <button type="button" class="guest-row" [class.guest-selected]="isSelected(guest.id)" (click)="selectGuest(guest.id)" [attr.aria-pressed]="isSelected(guest.id)">
+        <span class="guest-avatar {{ guest.color }}">{{ guest.initials }}</span>
+        <span class="guest-details"><strong>{{ guest.name }}</strong><small>{{ guest.party }} <b>·</b> {{ guest.meal }}</small></span>
+        <span class="guest-state" [class.pending]="guest.status === 'Pending'" [title]="guest.status"><span></span>{{ guest.status === 'Confirmed' ? 'Yes' : 'Awaiting' }}</span>
+        @if (guest.tableId !== null) {
+          <span class="guest-table">T{{ guest.tableId }}</span>
+        } @else {
+          <span class="guest-table empty">—</span>
+        }
+      </button>
+    } @empty {
+      <div class="empty-guests"><svg lucideUsersRound></svg><p>No guests match your search.</p></div>
+    }
+  </div>
+  <button class="add-guest-button" (click)="addGuestRequested.emit()"><svg lucidePlus></svg> Add a guest</button>
+</aside>

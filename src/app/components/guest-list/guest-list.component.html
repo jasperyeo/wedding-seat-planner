@@ -3,15 +3,7 @@
     <div><h2>Guest list</h2><span class="panel-count">{{ filteredGuests().length }} people</span></div>
     <button class="icon-button add-guest-icon" aria-label="Add guest" title="Add guest" (click)="addGuestRequested.emit()"><svg lucidePlus></svg><span>Add guest</span></button>
   </div>
-  <label class="search-field"><svg lucideSearch></svg><input pInputText type="search" placeholder="Find a guest..." [ngModel]="search()" (ngModelChange)="searchChanged.emit($event)" aria-label="Search guests" /><kbd>⌘ K</kbd></label>
-  <div class="filter-tabs" role="tablist" aria-label="Filter guests">
-    @for (filter of filters; track filter) {
-      <button type="button" role="tab" [attr.aria-selected]="activeFilter() === filter" [class.selected]="activeFilter() === filter" (click)="filterChanged.emit(filter)">{{ filter }}<span>{{ filter === 'Everyone' ? guests().length : filter === 'Unseated' ? unseatedCount() : confirmedCount() }}</span></button>
-    }
-  </div>
-  @if (selectedGuestId() !== null) {
-    <div class="selection-hint"><span>Guest selected</span><button (click)="selectionChanged.emit(null)">Cancel</button></div>
-  }
+  <app-guest-search-filter [activeFilter]="activeFilter()" [selectedGuestId]="selectedGuestId()" [totalGuests]="guests().length" [unseatedCount]="unseatedCount()" [confirmedCount]="confirmedCount()" [search]="search()" (searchChanged)="searchChanged.emit($event)" (filterChanged)="filterChanged.emit($event)" (selectionChanged)="selectionChanged.emit($event)" />
   <div class="guest-list" cdkDropList cdkDropListOrientation="vertical" [cdkDropListData]="filteredGuests()" (cdkDropListDropped)="reorderGuests($event)" aria-live="polite">
     @for (guest of filteredGuests(); track guest.id) {
       <app-guest-row [guest]="guest" [isSelected]="isSelected(guest.id)" (selectRequested)="selectGuest($event)" (infoRequested)="showGuestInfo($event)" />

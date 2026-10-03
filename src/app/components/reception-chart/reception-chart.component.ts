@@ -1,11 +1,14 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
-import { LucideArmchair, LucideChevronDown, LucideDownload, LucidePlus } from '@lucide/angular';
 import { Guest, SeatTable } from '../../models/seating';
+import { ChartFooterComponent } from './chart-footer/chart-footer.component';
+import { ChartInstructionComponent } from './chart-instruction/chart-instruction.component';
+import { ChartToolbarComponent } from './chart-toolbar/chart-toolbar.component';
+import { TableNodeComponent } from './table-node/table-node.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'planner-layout-contents' },
-  imports: [LucideArmchair, LucideChevronDown, LucideDownload, LucidePlus],
+  imports: [ChartFooterComponent, ChartInstructionComponent, ChartToolbarComponent, TableNodeComponent],
   selector: 'app-reception-chart',
   standalone: true,
   templateUrl: './reception-chart.component.html',
@@ -20,22 +23,7 @@ export class ReceptionChartComponent {
   readonly assignGuestRequested = output<number>();
   readonly unseatedGuestsRequested = output<void>();
 
-  protected guestsAt(tableId: number): Guest[] {
-    return this.guests().filter(guest => guest.tableId === tableId);
-  }
-
-  protected seatCount(tableId: number): number {
-    return this.guestsAt(tableId).length;
-  }
-
   protected selectedGuestName(): string | undefined {
     return this.guests().find(guest => guest.id === this.selectedGuestId())?.name;
-  }
-
-  protected assignSelected(tableId: number): void {
-    if (this.selectedGuestId() === null) return;
-    const table = this.tables().find(item => item.id === tableId);
-    if (!table || this.seatCount(tableId) >= table.capacity) return;
-    this.assignGuestRequested.emit(tableId);
   }
 }

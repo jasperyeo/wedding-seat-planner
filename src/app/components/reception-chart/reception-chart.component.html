@@ -1,22 +1,11 @@
 <section class="chart-panel" aria-labelledby="chart-title">
-  <div class="chart-toolbar">
-    <div><h2 id="chart-title">Reception layout</h2><span class="chart-subtitle">{{ tables().length }} tables <b>·</b> {{ guests().filter(guest => guest.tableId !== null).length }} guests seated</span></div>
-    <div class="chart-actions"><button class="tool-button" (click)="addTableRequested.emit()" title="Add table"><svg lucidePlus></svg><span>Add table</span></button><button class="icon-button more-button" (click)="exportRequested.emit()" aria-label="Export seating chart" title="Export seating chart"><svg lucideDownload></svg></button></div>
-  </div>
-  <div class="chart-instruction"><span class="instruction-mark"><svg lucideArmchair></svg></span>@if (selectedGuestId() !== null) { <span>Choose a table to seat <strong>{{ selectedGuestName() }}</strong></span> } @else { <span>Select a guest, then choose a table to assign their seat</span> }</div>
+  <app-chart-toolbar [tableCount]="tables().length" [seatedGuestsCount]="guests().filter(guest => guest.tableId !== null).length" (addTableRequested)="addTableRequested.emit()" (exportRequested)="exportRequested.emit()" />
+  <app-chart-instruction [selectedGuestId]="selectedGuestId()" [selectedGuestName]="selectedGuestName()" />
   <div class="floorplan" aria-label="Reception floor plan with assigned tables">
     @for (table of tables(); track table.id) {
-      <button type="button" class="table-node {{ table.accent }}" [class.table-target]="selectedGuestId() !== null && seatCount(table.id) < table.capacity" [class.table-full]="seatCount(table.id) >= table.capacity" [style.left.%]="table.position.x" [style.top.%]="table.position.y" (click)="assignSelected(table.id)" [attr.aria-label]="table.name + ', ' + seatCount(table.id) + ' of ' + table.capacity + ' seats'">
-        <span class="table-place-settings" [style.--seats]="table.capacity">
-          @for (seat of [].constructor(table.capacity); track $index) {
-            <i class="seat-dot" [class.occupied]="$index < seatCount(table.id)" [style.--seat]="$index"></i>
-          }
-          <span class="table-center"><strong>{{ table.name }}</strong><small>{{ seatCount(table.id) }} / {{ table.capacity }} seats</small></span>
-        </span>
-        <span class="table-guests">@for (guest of guestsAt(table.id).slice(0, 3); track guest.id) { <i>{{ guest.initials }}</i> } @if (seatCount(table.id) > 3) { <em>+{{ seatCount(table.id) - 3 }}</em> }</span>
-      </button>
+      <app-table-node [table]="table" [guests]="guests()" [selectedGuestId]="selectedGuestId()" (assignRequested)="assignGuestRequested.emit($event)" />
     }
     <div class="floorplan-footer"><span><i class="legend-dot"></i> Seated</span><span><i class="legend-dot open"></i> Open seat</span></div>
   </div>
-  <div class="chart-footer"><span><strong>{{ guests().filter(guest => guest.tableId === null).length }}</strong> guests still need a seat</span><button class="text-action" (click)="unseatedGuestsRequested.emit()">View unseated <svg lucideChevronDown></svg></button></div>
+  <app-chart-footer [remainingGuestsCount]="guests().filter(guest => guest.tableId === null).length" (viewUnseatedRequested)="unseatedGuestsRequested.emit()" />
 </section>

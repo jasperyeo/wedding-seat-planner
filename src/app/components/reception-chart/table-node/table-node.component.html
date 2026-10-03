@@ -1,0 +1,9 @@
+<button type="button" class="table-node {{ table().accent }}" [class.table-target]="selectedGuestId() !== null && seatCount() < table().capacity" [class.table-full]="seatCount() >= table().capacity" [style.left.%]="table().position.x" [style.top.%]="table().position.y" (click)="assignSelected()" [attr.aria-label]="table().name + ', ' + seatCount() + ' of ' + table().capacity + ' seats'">
+  <span class="table-place-settings" [style.--seats]="table().capacity">
+    @for (seat of [].constructor(table().capacity); track $index) {
+      <i class="seat-dot" [class.occupied]="$index < seatCount()" [style.--seat]="$index"></i>
+    }
+    <span class="table-center"><strong>{{ table().name }}</strong><small>{{ seatCount() }} / {{ table().capacity }} seats</small></span>
+  </span>
+  <span class="table-guests">@for (guest of guestsAt().slice(0, 3); track guest.id) { <i>{{ guest.initials }}</i> } @if (seatCount() > 3) { <em>+{{ seatCount() - 3 }}</em> }</span>
+</button>

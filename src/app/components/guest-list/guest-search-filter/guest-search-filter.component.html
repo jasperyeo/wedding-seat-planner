@@ -1,0 +1,9 @@
+<label class="search-field"><svg lucideSearch></svg><input pInputText type="search" placeholder="Find a guest..." [ngModel]="search()" (ngModelChange)="searchChanged.emit($event)" aria-label="Search guests" /><kbd>⌘ K</kbd></label>
+<div class="filter-tabs" role="tablist" aria-label="Filter guests">
+  @for (filter of filters; track filter) {
+    <button type="button" role="tab" [attr.aria-selected]="activeFilter() === filter" [class.selected]="activeFilter() === filter" (click)="filterChanged.emit(filter)">{{ filter }}<span>{{ filter === 'Everyone' ? totalGuests() : filter === 'Unseated' ? unseatedCount() : confirmedCount() }}</span></button>
+  }
+</div>
+@if (selectedGuestId() !== null) {
+  <div class="selection-hint"><span>Guest selected</span><button (click)="selectionChanged.emit(null)">Cancel</button></div>
+}

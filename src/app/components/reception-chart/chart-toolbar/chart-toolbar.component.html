@@ -1,0 +1,4 @@
+<div class="chart-toolbar">
+  <div><h2 id="chart-title">Reception layout</h2><span class="chart-subtitle">{{ tableCount() }} tables <b>·</b> {{ seatedGuestsCount() }} guests seated</span></div>
+  <div class="chart-actions"><button class="tool-button" (click)="addTableRequested.emit()" title="Add table"><svg lucidePlus></svg><span>Add table</span></button><button class="icon-button more-button" (click)="exportRequested.emit()" aria-label="Export seating chart" title="Export seating chart"><svg lucideDownload></svg></button></div>
+</div>

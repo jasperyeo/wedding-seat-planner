@@ -1,0 +1,7 @@
+<p-dialog header="Delete guest?" [visible]="visible()" (visibleChange)="!$event && keepGuest()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog delete-confirmation-dialog" [style]="{ width: 'min(390px, calc(100vw - 32px))' }">
+  <p class="delete-confirmation-copy">Remove <strong>{{ guest()?.name }}</strong> from the guest list? This cannot be undone.</p>
+  <ng-template #footer>
+    <button class="dialog-cancel" (click)="keepGuest()">Keep guest</button>
+    <button class="dialog-danger" (click)="confirmDelete()"><svg lucideTrash2></svg> Delete guest</button>
+  </ng-template>
+</p-dialog>

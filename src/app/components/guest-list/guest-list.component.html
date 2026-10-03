@@ -1,7 +1,7 @@
 <aside id="guests" class="guest-panel">
   <div class="panel-heading">
     <div><h2>Guest list</h2><span class="panel-count">{{ filteredGuests().length }} people</span></div>
-    <button class="icon-button add-guest-icon" aria-label="Add guest" title="Add guest" (click)="addGuestRequested.emit()"><svg lucidePlus></svg></button>
+    <button class="icon-button add-guest-icon" aria-label="Add guest" title="Add guest" (click)="addGuestRequested.emit()"><svg lucidePlus></svg><span>Add guest</span></button>
   </div>
   <label class="search-field"><svg lucideSearch></svg><input pInputText type="search" placeholder="Find a guest..." [ngModel]="search()" (ngModelChange)="searchChanged.emit($event)" aria-label="Search guests" /><kbd>⌘ K</kbd></label>
   <div class="filter-tabs" role="tablist" aria-label="Filter guests">
@@ -14,51 +14,12 @@
   }
   <div class="guest-list" cdkDropList cdkDropListOrientation="vertical" [cdkDropListData]="filteredGuests()" (cdkDropListDropped)="reorderGuests($event)" aria-live="polite">
     @for (guest of filteredGuests(); track guest.id) {
-      <div class="guest-row" cdkDrag [cdkDragData]="guest" [cdkDragStartDelay]="{ touch: 150, mouse: 0 }" [class.guest-selected]="isSelected(guest.id)">
-        <button type="button" class="guest-action-button drag-handle" cdkDragHandle [attr.aria-label]="'Reorder ' + guest.name" [title]="'Drag to reorder ' + guest.name"><svg lucideGripVertical></svg></button>
-        <span class="guest-avatar {{ guest.color }}">{{ guest.initials }}</span>
-        <span class="guest-details"><strong>{{ guest.name }}</strong><small>{{ guest.party }} <b>·</b> {{ guest.meal }}</small></span>
-        <span class="guest-state" [class.pending]="guest.status === 'Pending'" [title]="guest.status"><span></span>{{ guest.status === 'Confirmed' ? 'Yes' : 'Awaiting' }}</span>
-        @if (guest.tableId !== null) {
-          <span class="guest-table">T{{ guest.tableId }}</span>
-        } @else {
-          <span class="guest-table empty">—</span>
-        }
-        <span class="guest-actions">
-          <button type="button" class="guest-action-button" [attr.aria-label]="'View ' + guest.name + ' information'" [title]="'View ' + guest.name + ' information'" (click)="showGuestInfo(guest)"><svg lucideInfo></svg></button>
-          <button type="button" class="guest-action-button allocate-action" [class.active]="isSelected(guest.id)" [attr.aria-label]="'Allocate ' + guest.name + ' to a table'" [title]="'Allocate ' + guest.name + ' to a table'" [attr.aria-pressed]="isSelected(guest.id)" (click)="selectGuest(guest.id)"><svg lucideArmchair></svg></button>
-        </span>
-      </div>
+      <app-guest-row [guest]="guest" [isSelected]="isSelected(guest.id)" (selectRequested)="selectGuest($event)" (infoRequested)="showGuestInfo($event)" />
     } @empty {
       <div class="empty-guests"><svg lucideUsersRound></svg><p>No guests match your search.</p></div>
     }
   </div>
-  <button class="add-guest-button" (click)="addGuestRequested.emit()"><svg lucidePlus></svg> Add a guest</button>
 </aside>
 
-<p-dialog header="Guest information" [visible]="guestInfo() !== null" (visibleChange)="!$event && closeGuestInfo()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog guest-info-dialog" [style]="{ width: 'min(440px, calc(100vw - 32px))' }">
-  @if (guestInfo(); as guest) {
-    <div class="guest-info-content">
-      <span class="guest-avatar guest-info-avatar {{ guest.color }}">{{ guest.initials }}</span>
-      <h3>{{ guest.name }}</h3>
-      <dl>
-        <div><dt>Guest group</dt><dd>{{ guest.party }}</dd></div>
-        <div><dt>RSVP</dt><dd>{{ guest.status }}</dd></div>
-        <div><dt>Meal choice</dt><dd>{{ guest.meal }}</dd></div>
-        <div><dt>Table</dt><dd>{{ guest.tableId === null ? 'Not assigned' : 'Table ' + guest.tableId }}</dd></div>
-      </dl>
-    </div>
-    <ng-template #footer>
-      <button class="dialog-cancel" (click)="closeGuestInfo()"><svg lucideX></svg> Close</button>
-      <button class="dialog-danger" (click)="requestDelete(guest)"><svg lucideTrash2></svg> Delete guest</button>
-    </ng-template>
-  }
-</p-dialog>
-
-<p-dialog header="Delete guest?" [visible]="deleteConfirmationVisible()" (visibleChange)="!$event && cancelDelete()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog delete-confirmation-dialog" [style]="{ width: 'min(390px, calc(100vw - 32px))' }">
-  <p class="delete-confirmation-copy">Remove <strong>{{ guestToDelete()?.name }}</strong> from the guest list? This cannot be undone.</p>
-  <ng-template #footer>
-    <button class="dialog-cancel" (click)="cancelDelete()">Keep guest</button>
-    <button class="dialog-danger" (click)="confirmDelete()"><svg lucideTrash2></svg> Delete guest</button>
-  </ng-template>
-</p-dialog>
+<app-guest-info-dialog [guest]="guestInfo()" [visible]="guestInfo() !== null" (closed)="closeGuestInfo()" (deleteRequested)="requestDelete($event)" />
+<app-delete-guest-dialog [guest]="guestToDelete()" [visible]="deleteConfirmationVisible()" (kept)="cancelDelete()" (confirmed)="confirmDelete()" />

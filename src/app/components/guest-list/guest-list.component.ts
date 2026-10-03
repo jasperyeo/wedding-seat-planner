@@ -1,15 +1,17 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import { CdkDrag, CdkDragDrop, CdkDragHandle, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
+import { CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
 import { FormsModule } from '@angular/forms';
-import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
-import { LucideArmchair, LucideGripVertical, LucideInfo, LucidePlus, LucideSearch, LucideTrash2, LucideUsersRound, LucideX } from '@lucide/angular';
+import { LucidePlus, LucideSearch, LucideUsersRound } from '@lucide/angular';
 import { Guest, GuestFilter } from '../../models/seating';
+import { GuestInfoDialogComponent } from './guest-info-dialog/guest-info-dialog.component';
+import { GuestRowComponent } from './guest-row/guest-row.component';
+import { DeleteGuestDialogComponent } from './delete-guest-dialog/delete-guest-dialog.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'planner-layout-contents' },
-  imports: [CdkDrag, CdkDragHandle, CdkDropList, FormsModule, DialogModule, InputTextModule, LucideArmchair, LucideGripVertical, LucideInfo, LucidePlus, LucideSearch, LucideTrash2, LucideUsersRound, LucideX],
+  imports: [CdkDropList, DeleteGuestDialogComponent, FormsModule, GuestInfoDialogComponent, GuestRowComponent, InputTextModule, LucidePlus, LucideSearch, LucideUsersRound],
   selector: 'app-guest-list',
   standalone: true,
   templateUrl: './guest-list.component.html',

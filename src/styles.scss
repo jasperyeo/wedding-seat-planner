@@ -89,6 +89,8 @@ h1, h2, p { margin-top: 0; }
 .panel-count { color: #92958a; font-size: 10px; }
 .icon-button { display: grid; width: 30px; height: 30px; place-items: center; border: 1px solid #e5e6dc; border-radius: 4px; color: #65806d; background: #fffefa; cursor: pointer; }
 .icon-button:hover { border-color: #afbeaf; background: #f5f8f3; }
+.icon-button.add-guest-icon { display: inline-flex; width: auto; height: 30px; align-items: center; gap: 5px; padding: 0 9px; font-size: 9px; font-weight: 600; white-space: nowrap; }
+.add-guest-icon svg { width: 14px; height: 14px; }
 .search-field { display: flex; height: 35px; align-items: center; gap: 8px; padding: 0 9px; border: 1px solid #e9e8e1; border-radius: 4px; color: #8e9288; background: #fff; }
 .search-field:focus-within { border-color: #9eaf9f; box-shadow: 0 0 0 2px #eaf0e9; }
 .search-field input { width: 100%; min-width: 0; padding: 0; border: 0; outline: 0; color: #39463d; background: transparent; font-size: 10px; }

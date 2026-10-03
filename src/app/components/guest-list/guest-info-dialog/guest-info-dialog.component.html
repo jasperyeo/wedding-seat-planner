@@ -1,0 +1,18 @@
+<p-dialog header="Guest information" [visible]="visible()" (visibleChange)="!$event && close()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog guest-info-dialog" [style]="{ width: 'min(440px, calc(100vw - 32px))' }">
+  @if (guest(); as guest) {
+    <div class="guest-info-content">
+      <span class="guest-avatar guest-info-avatar {{ guest.color }}">{{ guest.initials }}</span>
+      <h3>{{ guest.name }}</h3>
+      <dl>
+        <div><dt>Guest group</dt><dd>{{ guest.party }}</dd></div>
+        <div><dt>RSVP</dt><dd>{{ guest.status }}</dd></div>
+        <div><dt>Meal choice</dt><dd>{{ guest.meal }}</dd></div>
+        <div><dt>Table</dt><dd>{{ guest.tableId === null ? 'Not assigned' : 'Table ' + guest.tableId }}</dd></div>
+      </dl>
+    </div>
+    <ng-template #footer>
+      <button class="dialog-cancel" (click)="close()"><svg lucideX></svg> Close</button>
+      <button class="dialog-danger" (click)="requestDelete(guest)"><svg lucideTrash2></svg> Delete guest</button>
+    </ng-template>
+  }
+</p-dialog>

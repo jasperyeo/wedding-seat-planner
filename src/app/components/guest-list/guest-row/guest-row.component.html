@@ -1,0 +1,15 @@
+<div class="guest-row" cdkDrag [cdkDragData]="guest()" [cdkDragStartDelay]="{ touch: 150, mouse: 0 }" [class.guest-selected]="isSelected()">
+  <button type="button" class="guest-action-button drag-handle" cdkDragHandle [attr.aria-label]="'Reorder ' + guest().name" [title]="'Drag to reorder ' + guest().name"><svg lucideGripVertical></svg></button>
+  <span class="guest-avatar {{ guest().color }}">{{ guest().initials }}</span>
+  <span class="guest-details"><strong>{{ guest().name }}</strong><small>{{ guest().party }} <b>·</b> {{ guest().meal }}</small></span>
+  <span class="guest-state" [class.pending]="guest().status === 'Pending'" [title]="guest().status"><span></span>{{ guest().status === 'Confirmed' ? 'Yes' : 'Awaiting' }}</span>
+  @if (guest().tableId !== null) {
+    <span class="guest-table">T{{ guest().tableId }}</span>
+  } @else {
+    <span class="guest-table empty">—</span>
+  }
+  <span class="guest-actions">
+    <button type="button" class="guest-action-button" [attr.aria-label]="'View ' + guest().name + ' information'" [title]="'View ' + guest().name + ' information'" (click)="infoRequested.emit(guest())"><svg lucideInfo></svg></button>
+    <button type="button" class="guest-action-button allocate-action" [class.active]="isSelected()" [attr.aria-label]="'Allocate ' + guest().name + ' to a table'" [title]="'Allocate ' + guest().name + ' to a table'" [attr.aria-pressed]="isSelected()" (click)="selectGuest()"><svg lucideArmchair></svg></button>
+  </span>
+</div>

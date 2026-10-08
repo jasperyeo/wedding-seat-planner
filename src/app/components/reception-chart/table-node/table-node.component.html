@@ -1,4 +1,4 @@
-<button type="button" class="table-node {{ table().accent }}" [class.table-target]="selectedGuestId() !== null && seatCount() < table().capacity" [class.table-full]="seatCount() >= table().capacity" [style.left.%]="table().position.x" [style.top.%]="table().position.y" (click)="assignSelected()" [attr.aria-label]="table().name + ', ' + seatCount() + ' of ' + table().capacity + ' seats'">
+<button type="button" class="table-node {{ table().accent }}" [class.table-target]="selectedGuestId() !== null && seatCount() < table().capacity" [class.table-full]="seatCount() >= table().capacity" [style.left.%]="table().position.x" [style.top.%]="table().position.y" (click)="handleClick()" [attr.aria-label]="table().name + ', ' + seatCount() + ' of ' + table().capacity + ' seats'" cdkDrag [cdkDragBoundary]="'.floorplan'" (cdkDragStarted)="handleDragStarted()" (cdkDragEnded)="handleDragEnded($event)">
   <span class="table-place-settings" [style.--seats]="table().capacity">
     @for (seat of [].constructor(table().capacity); track $index) {
       <i class="seat-dot" [class.occupied]="$index < seatCount()" [style.--seat]="$index"></i>
@@ -7,3 +7,6 @@
   </span>
   <span class="table-guests">@for (guest of guestsAt().slice(0, 3); track guest.id) { <i>{{ guest.initials }}</i> } @if (seatCount() > 3) { <em>+{{ seatCount() - 3 }}</em> }</span>
 </button>
+
+<app-table-info-dialog [table]="table()" [guests]="guestsAt()" [visible]="infoVisible()" (closed)="closeInfo()" (deleteRequested)="requestDelete()" />
+<app-delete-table-dialog [table]="table()" [visible]="deleteConfirmationVisible()" (cancelled)="cancelDelete()" (confirmed)="confirmDelete()" />

@@ -26,6 +26,11 @@
               {
                 "glob": "**/*",
                 "input": "public"
+              },
+              {
+                "glob": "hotels.geojson",
+                "input": "src/app/data",
+                "output": "/assets/data"
               }
             ],
             "styles": [

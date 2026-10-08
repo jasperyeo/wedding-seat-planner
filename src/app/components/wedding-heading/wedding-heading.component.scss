@@ -1,0 +1,18 @@
+.wedding-date-control { display: flex; min-width: 0; align-items: center; gap: 6px; }
+.wedding-date-control > span { display: flex; align-items: center; gap: 6px; }
+.wedding-venue-control { display: flex; min-width: 0; align-items: center; gap: 6px; }
+.wedding-venue-control > span { display: flex; align-items: center; gap: 6px; }
+.wedding-date-edit { width: 23px; height: 23px; flex: 0 0 auto; padding: 0; }
+.wedding-date-edit svg { width: 12px; height: 12px; }
+.wedding-date-input { min-height: 28px; min-width: 132px; padding: 3px 6px; border: 1px solid #e3e5dc; border-radius: 4px; color: #405144; background: #fffefa; font-size: 10px; }
+.wedding-venue-select { width: min(260px, 34vw); min-height: 28px; padding: 3px 22px 3px 6px; border: 1px solid #e3e5dc; border-radius: 4px; color: #405144; background: #fffefa; font-size: 10px; }
+.wedding-date-action { display: inline-flex; width: 28px; min-height: 28px; flex: 0 0 auto; align-items: center; justify-content: center; padding: 0; border: 1px solid #e1e3da; border-radius: 4px; color: #687367; background: #fffefa; cursor: pointer; }
+.wedding-date-action svg { width: 14px; height: 14px; }
+.wedding-date-action.save { border-color: #526f5b; color: #fff; background: #526f5b; }
+.wedding-date-action:disabled { cursor: not-allowed; opacity: .48; }
+.visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; clip-path: inset(50%); }
+
+@media (max-width: 760px) {
+	.wedding-date-control, .wedding-venue-control { flex-wrap: wrap; }
+	.wedding-venue-select { width: min(260px, calc(100vw - 70px)); }
+}

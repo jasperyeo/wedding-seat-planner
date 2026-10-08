@@ -1,11 +1,12 @@
 <section class="chart-panel" aria-labelledby="chart-title">
-  <app-chart-toolbar [tableCount]="tables().length" [seatedGuestsCount]="guests().filter(guest => guest.tableId !== null).length" (addTableRequested)="addTableRequested.emit()" (exportRequested)="exportRequested.emit()" />
+  <app-chart-toolbar [tableCount]="tables().length" [seatedGuestsCount]="guests().filter(guest => guest.tableId !== null).length" (addTableRequested)="openAddTableDialog()" (exportRequested)="exportRequested.emit()" />
   <app-chart-instruction [selectedGuestId]="selectedGuestId()" [selectedGuestName]="selectedGuestName()" />
   <div class="floorplan" aria-label="Reception floor plan with assigned tables">
     @for (table of tables(); track table.id) {
-      <app-table-node [table]="table" [guests]="guests()" [selectedGuestId]="selectedGuestId()" (assignRequested)="assignGuestRequested.emit($event)" />
+      <app-table-node [table]="table" [guests]="guests()" [selectedGuestId]="selectedGuestId()" (assignRequested)="assignGuestRequested.emit($event)" (deleteRequested)="deleteTable(table.id)" (positionChanged)="moveTable({ id: table.id, position: $event })" />
     }
     <div class="floorplan-footer"><span><i class="legend-dot"></i> Seated</span><span><i class="legend-dot open"></i> Open seat</span></div>
   </div>
   <app-chart-footer [remainingGuestsCount]="guests().filter(guest => guest.tableId === null).length" (viewUnseatedRequested)="unseatedGuestsRequested.emit()" />
 </section>
+<app-add-table-dialog [visible]="addTableDialogVisible()" (closed)="closeAddTableDialog()" (tableAdded)="addTable($event)" />

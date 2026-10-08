@@ -2,9 +2,36 @@
   <div>
     <h1 id="wedding-title">Wedding Seat Planner</h1>
     <div class="wedding-meta">
-      <span><svg lucideCalendarDays></svg> Saturday, September 19, 2026</span>
+      <div class="wedding-date-control">
+        @if (editingDate()) {
+          <label class="visually-hidden" for="wedding-date">Wedding date</label>
+          <input id="wedding-date" class="wedding-date-input" type="date" [min]="minimumDate" [value]="draftWeddingDate()" (input)="draftWeddingDate.set($any($event.target).value)" />
+          <button type="button" class="wedding-date-action" aria-label="Cancel wedding date change" title="Cancel change" (click)="cancelDateEdit()"><svg lucideX></svg></button>
+          <button type="button" class="wedding-date-action save" aria-label="Save wedding date change" title="Save change" [disabled]="draftWeddingDate() < minimumDate" (click)="saveDateEdit()"><svg lucideCheck></svg></button>
+        } @else {
+          <span><svg lucideCalendarDays></svg> {{ formattedWeddingDate() }}</span>
+          <button type="button" class="icon-button wedding-date-edit" aria-label="Edit wedding date" title="Edit wedding date" (click)="beginDateEdit()"><svg lucidePencil></svg></button>
+        }
+      </div>
       <i></i>
-      <span><svg lucideMapPin></svg> Willow & Stone Estate</span>
+      <div class="wedding-venue-control">
+        @if (editingVenue()) {
+          <label class="visually-hidden" for="wedding-venue">Wedding venue</label>
+          <select id="wedding-venue" class="wedding-venue-select" [value]="draftWeddingVenue()" [disabled]="loadingHotels()" (change)="draftWeddingVenue.set($any($event.target).value)">
+            @if (!hotelNames().includes(weddingVenue())) {
+              <option [value]="weddingVenue()">{{ weddingVenue() }} (current venue)</option>
+            }
+            @for (hotel of hotelNames(); track hotel) {
+              <option [value]="hotel">{{ hotel }}</option>
+            }
+          </select>
+          <button type="button" class="wedding-date-action" aria-label="Cancel wedding venue change" title="Cancel change" (click)="cancelVenueEdit()"><svg lucideX></svg></button>
+          <button type="button" class="wedding-date-action save" aria-label="Save wedding venue change" title="Save change" [disabled]="loadingHotels() || !draftWeddingVenue().trim()" (click)="saveVenueEdit()"><svg lucideCheck></svg></button>
+        } @else {
+          <span><svg lucideMapPin></svg> {{ weddingVenue() }}</span>
+          <button type="button" class="icon-button wedding-date-edit" aria-label="Edit wedding venue" title="Edit wedding venue" (click)="beginVenueEdit()"><svg lucidePencil></svg></button>
+        }
+      </div>
     </div>
   </div>
   <button class="export-button" (click)="exportRequested.emit()"><svg lucideDownload></svg> Export plan</button>

@@ -1,9 +1,4 @@
 import { ChangeDetectionStrategy, Component, computed, effect, signal } from '@angular/core';
-import { FormsModule } from '@angular/forms';
-import { DialogModule } from 'primeng/dialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { LucidePlus } from '@lucide/angular';
 import { WeddingHeadingComponent } from './components/wedding-heading/wedding-heading.component';
 import { SummaryStripComponent } from './components/summary-strip/summary-strip.component';
 import { Guest, GuestFilter, SeatTable } from './models/seating';
@@ -12,7 +7,7 @@ import { ReceptionChartComponent } from './components/reception-chart/reception-
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [FormsModule, DialogModule, InputTextModule, SelectModule, WeddingHeadingComponent, SummaryStripComponent, GuestListComponent, ReceptionChartComponent, LucidePlus],
+  imports: [WeddingHeadingComponent, SummaryStripComponent, GuestListComponent, ReceptionChartComponent],
   selector: 'app-root',
   standalone: true,
   styleUrl: './app.scss',
@@ -69,15 +64,6 @@ export class App {
   protected readonly search = signal('');
   protected readonly activeFilter = signal<GuestFilter>('Everyone');
   protected readonly selectedGuest = signal<number | null>(null);
-  protected readonly guestDialogVisible = signal(false);
-  protected readonly tableDialogVisible = signal(false);
-  protected readonly guestName = signal('');
-  protected readonly guestParty = signal('Friends');
-  protected readonly guestMeal = signal('Salmon');
-  protected readonly newTableName = signal('');
-  protected readonly newTableCapacity = signal(8);
-  protected readonly partyOptions = ['Bride side', 'Groom side', 'Friends', 'Cousins', 'Work friends'];
-  protected readonly mealOptions = ['Salmon', 'Beef', 'Vegetarian', 'Chicken'];
   protected readonly filters: GuestFilter[] = ['Everyone', 'Unseated', 'Confirmed'];
   protected readonly seatedCount = computed(() => this.guests().filter(guest => guest.tableId !== null).length);
   protected readonly confirmedCount = computed(() => this.guests().filter(guest => guest.status === 'Confirmed').length);
@@ -113,56 +99,8 @@ export class App {
     });
   }
 
-  protected seatCount(tableId: number): number {
-    return this.guests().filter(guest => guest.tableId === tableId).length;
-  }
-
-  protected assignSelected(tableId: number): void {
-    const guestId = this.selectedGuest();
-    if (guestId === null) return;
-    const table = this.tables().find(item => item.id === tableId);
-    if (!table || this.seatCount(tableId) >= table.capacity) return;
-    this.guests.update(guests => guests.map(guest => guest.id === guestId ? { ...guest, tableId } : guest));
-    this.selectedGuest.set(null);
-  }
-
-  protected deleteGuest(guestId: number): void {
-    this.guests.update(guests => guests.filter(guest => guest.id !== guestId));
-    if (this.selectedGuest() === guestId) this.selectedGuest.set(null);
-  }
-
-  protected reorderGuests(orderedGuestIds: number[]): void {
-    const orderedIdSet = new Set(orderedGuestIds);
-    const guestsById = new Map(this.guests().map(guest => [guest.id, guest]));
-    const orderedGuests = orderedGuestIds.map(id => guestsById.get(id)).filter((guest): guest is Guest => guest !== undefined);
-    let nextOrderedGuest = 0;
-    this.guests.update(guests => guests.map(guest => {
-      if (!orderedIdSet.has(guest.id)) return guest;
-      return orderedGuests[nextOrderedGuest++];
-    }));
-  }
-
-  protected unseat(guestId: number): void {
-    this.guests.update(guests => guests.map(guest => guest.id === guestId ? { ...guest, tableId: null } : guest));
-  }
-
-  protected addGuest(): void {
-    const name = this.guestName().trim();
-    if (!name) return;
-    const initials = name.split(/\s+/).slice(0, 2).map(part => part[0]).join('').toUpperCase();
-    const colors = ['rose', 'sage', 'gold', 'blue'];
-    this.guests.update(guests => [...guests, { id: Math.max(0, ...guests.map(guest => guest.id)) + 1, name, party: this.guestParty(), meal: this.guestMeal(), status: 'Pending', tableId: null, initials, color: colors[guests.length % colors.length] }]);
-    this.guestName.set('');
-    this.guestDialogVisible.set(false);
-  }
-
-  protected addTable(): void {
-    const name = this.newTableName().trim() || `Table ${this.tables().length + 1}`;
-    const id = Math.max(0, ...this.tables().map(table => table.id)) + 1;
-    const positions = [{ x: 20, y: 42 }, { x: 51, y: 42 }, { x: 78, y: 42 }, { x: 36, y: 86 }, { x: 66, y: 86 }];
-    this.tables.update(tables => [...tables, { id, name, capacity: Math.min(12, Math.max(2, Number(this.newTableCapacity()) || 8)), shape: 'round', accent: ['sage', 'coral', 'blue', 'gold'][tables.length % 4], position: positions[tables.length % positions.length] }]);
-    this.newTableName.set('');
-    this.tableDialogVisible.set(false);
+  protected addGuest(guest: Guest): void {
+    this.guests.update(guests => [...guests, guest]);
   }
 
   protected exportPlan(): void {

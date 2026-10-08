@@ -1,0 +1,7 @@
+<p-dialog header="Add a reception table" [visible]="visible()" (visibleChange)="!$event && close()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog" [style]="{ width: 'min(440px, calc(100vw - 32px))' }">
+  <div class="dialog-fields">
+    <label>Table name<input pInputText [ngModel]="tableName()" (ngModelChange)="tableName.set($event)" placeholder="e.g. Table 7" (keyup.enter)="addTable()" /></label>
+    <label>Seat capacity<input pInputText type="number" min="2" max="12" [ngModel]="capacity()" (ngModelChange)="capacity.set($event)" /></label>
+  </div>
+  <ng-template #footer><button class="dialog-cancel" (click)="close()">Cancel</button><button class="dialog-submit" (click)="addTable()"><svg lucidePlus></svg> Add table</button></ng-template>
+</p-dialog>

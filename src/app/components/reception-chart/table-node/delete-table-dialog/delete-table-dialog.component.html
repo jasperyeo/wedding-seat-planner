@@ -1,0 +1,7 @@
+<p-dialog header="Delete table?" [visible]="visible()" (visibleChange)="!$event && cancel()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog delete-confirmation-dialog" [style]="{ width: 'min(390px, calc(100vw - 32px))' }">
+  <p class="delete-confirmation-copy">Remove <strong>{{ table().name }}</strong> from the floor plan? This cannot be undone and will unseat everyone assigned to it.</p>
+  <ng-template #footer>
+    <button class="dialog-cancel" (click)="cancel()">Keep table</button>
+    <button class="dialog-danger" (click)="confirm()"><svg lucideTrash2></svg> Delete table</button>
+  </ng-template>
+</p-dialog>

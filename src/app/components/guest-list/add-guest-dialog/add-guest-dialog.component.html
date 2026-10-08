@@ -1,0 +1,8 @@
+<p-dialog header="Add a guest" [visible]="visible()" (visibleChange)="!$event && close()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog" [style]="{ width: 'min(440px, calc(100vw - 32px))' }">
+  <div class="dialog-fields">
+    <label>Full name<input pInputText [ngModel]="guestName()" (ngModelChange)="guestName.set($event)" placeholder="e.g. Alex Morgan" (keyup.enter)="addGuest()" /></label>
+    <label>Guest group<p-select [options]="partyOptions" [ngModel]="guestParty()" (ngModelChange)="guestParty.set($event)" appendTo="body" /></label>
+    <label>Meal choice<p-select [options]="mealOptions" [ngModel]="guestMeal()" (ngModelChange)="guestMeal.set($event)" appendTo="body" /></label>
+  </div>
+  <ng-template #footer><button class="dialog-cancel" (click)="close()">Cancel</button><button class="dialog-submit" [disabled]="!guestName().trim()" (click)="addGuest()"><svg lucidePlus></svg> Add guest</button></ng-template>
+</p-dialog>

@@ -173,7 +173,7 @@ h1, h2, p { margin-top: 0; }
 .table-node.blue .table-center strong { color: #5e7680; }
 .table-node.gold .table-center { border-color: #d7cbab; background: #f1eddf; }
 .table-node.gold .table-center strong { color: #88784e; }
-.seat-dot { position: absolute; z-index: 2; top: 50%; left: 50%; width: 10px; height: 10px; border: 1px solid #bacab8; border-radius: 50%; background: #fffefa; transform: rotate(calc(360deg / var(--seats) * var(--seat))) translateY(-45px); transition: background .2s, box-shadow .2s; }
+.seat-dot { position: absolute; z-index: 2; top: 50%; left: 50%; width: 10px; height: 10px; border: 1px solid #bacab8; border-radius: 50%; background: #fffefa; transform: translate(-50%, -50%) rotate(calc(360deg / var(--seats) * var(--seat))) translateY(-44.5px); transition: background .2s, box-shadow .2s; }
 .seat-dot.occupied { border-color: #6f8d70; background: #7f9a7e; box-shadow: inset 0 0 0 2px #f7f8f2; }
 .table-node.coral .seat-dot.occupied { border-color: #b88070; background: #c7917f; }
 .table-node.blue .seat-dot.occupied { border-color: #78919c; background: #91a5ad; }

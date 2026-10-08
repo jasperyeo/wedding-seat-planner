@@ -1,0 +1,26 @@
+<p-dialog header="Table information" [visible]="visible()" (visibleChange)="!$event && close()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog table-info-dialog" [style]="{ width: 'min(440px, calc(100vw - 32px))' }">
+  <div class="guest-info-content">
+    <h3>Table {{ table().id }}</h3>
+    <dl>
+      <div><dt>Table name</dt><dd>{{ table().name }}</dd></div>
+      <div><dt>Seat capacity</dt><dd>{{ table().capacity }}</dd></div>
+      <div><dt>Guests seated</dt><dd>{{ guests().length }}</dd></div>
+    </dl>
+    <div class="table-guest-list">
+      <h4>Seat names</h4>
+      @if (guests().length) {
+        <ul>
+          @for (guest of guests(); track guest.id) {
+            <li>{{ guest.name }}</li>
+          }
+        </ul>
+      } @else {
+        <p>No guests assigned to this table yet.</p>
+      }
+    </div>
+  </div>
+  <ng-template #footer>
+    <button class="dialog-cancel" (click)="close()">Close</button>
+    <button class="dialog-danger" (click)="requestDelete()"><svg lucideTrash2></svg> Delete table</button>
+  </ng-template>
+</p-dialog>

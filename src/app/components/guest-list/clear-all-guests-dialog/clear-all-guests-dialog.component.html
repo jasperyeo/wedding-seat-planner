@@ -1,0 +1,7 @@
+<p-dialog header="Clear all guests?" [visible]="visible()" (visibleChange)="!$event && cancel()" [modal]="true" [draggable]="false" [resizable]="false" styleClass="planner-dialog delete-confirmation-dialog" [style]="{ width: 'min(390px, calc(100vw - 32px))' }">
+  <p class="delete-confirmation-copy">Remove all <strong>{{ guestCount() }} guests</strong> from the guest list? This cannot be undone. Assigned guests will be unseated.</p>
+  <ng-template #footer>
+    <button class="dialog-cancel" (click)="cancel()">Keep guests</button>
+    <button class="dialog-danger" (click)="confirm()"><svg lucideTrash2></svg> Clear all guests</button>
+  </ng-template>
+</p-dialog>

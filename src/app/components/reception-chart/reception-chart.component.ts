@@ -56,12 +56,16 @@ export class ReceptionChartComponent {
     this.guestsChanged.emit(this.guests().map(guest => guest.tableId === tableId ? { ...guest, tableId: null } : guest));
   }
 
+  protected clearTable(tableId: number): void {
+    this.guestsChanged.emit(this.guests().map(guest => guest.tableId === tableId ? { ...guest, tableId: null } : guest));
+  }
+
+  protected unseatGuest(guestId: number): void {
+    this.guestsChanged.emit(this.guests().map(guest => guest.id === guestId ? { ...guest, tableId: null } : guest));
+  }
+
   protected moveTable(event: { id: number; position: { x: number; y: number } }): void {
-    const position = {
-      x: Math.min(92, Math.max(8, event.position.x)),
-      y: Math.min(92, Math.max(8, event.position.y)),
-    };
-    this.tablesChanged.emit(this.tables().map(table => table.id === event.id ? { ...table, position } : table));
+    this.tablesChanged.emit(this.tables().map(table => table.id === event.id ? { ...table, position: event.position } : table));
   }
 
   protected selectedGuestName(): string | undefined {

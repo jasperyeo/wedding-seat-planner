@@ -1,11 +1,11 @@
 import { ChangeDetectionStrategy, Component, input, output } from '@angular/core';
 import { DialogModule } from 'primeng/dialog';
-import { LucideTrash2 } from '@lucide/angular';
+import { LucideArmchair, LucideTrash2 } from '@lucide/angular';
 import { Guest, SeatTable } from '../../../../models/seating';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [DialogModule, LucideTrash2],
+  imports: [DialogModule, LucideArmchair, LucideTrash2],
   selector: 'app-table-info-dialog',
   standalone: true,
   templateUrl: './table-info-dialog.component.html',
@@ -17,6 +17,8 @@ export class TableInfoDialogComponent {
 
   readonly closed = output<void>();
   readonly deleteRequested = output<void>();
+  readonly clearRequested = output<void>();
+  readonly unseatRequested = output<number>();
 
   protected close(): void {
     this.closed.emit();
@@ -24,5 +26,13 @@ export class TableInfoDialogComponent {
 
   protected requestDelete(): void {
     this.deleteRequested.emit();
+  }
+
+  protected requestClear(): void {
+    this.clearRequested.emit();
+  }
+
+  protected requestUnseat(guestId: number): void {
+    this.unseatRequested.emit(guestId);
   }
 }

@@ -1,14 +1,21 @@
 <aside id="guests" class="guest-panel">
   <div class="panel-heading">
     <div><h2>Guest list</h2><span class="panel-count">{{ filteredGuests().length }} people</span></div>
-    <button class="icon-button add-guest-icon" aria-label="Add guest" title="Add guest" (click)="openAddGuestDialog()"><svg lucidePlus></svg><span>Add guest</span></button>
+    <div class="guest-list-heading-actions">
+      <button type="button" class="icon-button" aria-label="Clear all guests" title="Clear all guests" [disabled]="guests().length === 0" (click)="requestClearAllGuests()"><svg lucideTrash2></svg></button>
+      <button type="button" class="icon-button" aria-label="Add guest" title="Add guest" (click)="openAddGuestDialog()"><svg lucidePlus></svg></button>
+    </div>
   </div>
   <app-guest-search-filter [activeFilter]="activeFilter()" [selectedGuestId]="selectedGuestId()" [totalGuests]="guests().length" [unseatedCount]="unseatedCount()" [confirmedCount]="confirmedCount()" [search]="search()" (searchChanged)="searchChanged.emit($event)" (filterChanged)="filterChanged.emit($event)" (selectionChanged)="selectionChanged.emit($event)" />
   <div class="guest-list" cdkDropList cdkDropListOrientation="vertical" [cdkDropListData]="filteredGuests()" (cdkDropListDropped)="reorderGuests($event)" aria-live="polite">
     @for (guest of filteredGuests(); track guest.id) {
       <app-guest-row [guest]="guest" [isSelected]="isSelected(guest.id)" (selectRequested)="selectGuest($event)" (infoRequested)="showGuestInfo($event)" />
     } @empty {
-      <div class="empty-guests"><svg lucideUsersRound></svg><p>No guests match your search.</p></div>
+      @if (guests().length === 0) {
+        <div class="empty-guests"><svg lucideUsersRound></svg><p>No guests added yet.</p></div>
+      } @else {
+        <div class="empty-guests"><svg lucideUsersRound></svg><p>No guests match your search.</p></div>
+      }
     }
   </div>
 </aside>
@@ -16,3 +23,4 @@
 <app-guest-info-dialog [guest]="guestInfo()" [visible]="guestInfo() !== null" (closed)="closeGuestInfo()" (deleteRequested)="requestDelete($event)" />
 <app-delete-guest-dialog [guest]="guestToDelete()" [visible]="deleteConfirmationVisible()" (kept)="cancelDelete()" (confirmed)="confirmDelete()" />
 <app-add-guest-dialog [visible]="addGuestDialogVisible()" (closed)="closeAddGuestDialog()" (guestAdded)="addGuest($event)" />
+<app-clear-all-guests-dialog [visible]="clearAllConfirmationVisible()" [guestCount]="guests().length" (cancelled)="cancelClearAllGuests()" (confirmed)="confirmClearAllGuests()" />

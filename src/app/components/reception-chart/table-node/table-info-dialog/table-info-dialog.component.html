@@ -11,7 +11,10 @@
       @if (guests().length) {
         <ul>
           @for (guest of guests(); track guest.id) {
-            <li>{{ guest.name }}</li>
+            <li>
+              <span>{{ guest.name }}</span>
+              <button type="button" class="table-guest-unseat" [attr.aria-label]="'Unseat ' + guest.name" [title]="'Unseat ' + guest.name" (click)="requestUnseat(guest.id)"><svg lucideArmchair></svg></button>
+            </li>
           }
         </ul>
       } @else {
@@ -21,6 +24,7 @@
   </div>
   <ng-template #footer>
     <button class="dialog-cancel" (click)="close()">Close</button>
+    <button class="dialog-cancel" [disabled]="guests().length === 0" (click)="requestClear()">Clear table</button>
     <button class="dialog-danger" (click)="requestDelete()"><svg lucideTrash2></svg> Delete table</button>
   </ng-template>
 </p-dialog>

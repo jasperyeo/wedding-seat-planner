@@ -1,8 +1,10 @@
 import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
 import { CdkDragDrop, CdkDropList, moveItemInArray } from '@angular/cdk/drag-drop';
-import { LucidePlus, LucideUsersRound } from '@lucide/angular';
+import { DialogModule } from 'primeng/dialog';
+import { LucidePlus, LucideTrash2, LucideUsersRound } from '@lucide/angular';
 import { Guest, GuestFilter, SeatTable } from '../../models/seating';
 import { AddGuestDialogComponent, GuestDraft } from './add-guest-dialog/add-guest-dialog.component';
+import { ClearAllGuestsDialogComponent } from './clear-all-guests-dialog/clear-all-guests-dialog.component';
 import { DeleteGuestDialogComponent } from './delete-guest-dialog/delete-guest-dialog.component';
 import { GuestInfoDialogComponent } from './guest-info-dialog/guest-info-dialog.component';
 import { GuestRowComponent } from './guest-row/guest-row.component';
@@ -11,7 +13,7 @@ import { GuestSearchFilterComponent } from './guest-search-filter/guest-search-f
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
   host: { class: 'planner-layout-contents' },
-  imports: [AddGuestDialogComponent, CdkDropList, DeleteGuestDialogComponent, GuestInfoDialogComponent, GuestRowComponent, GuestSearchFilterComponent, LucidePlus, LucideUsersRound],
+  imports: [AddGuestDialogComponent, CdkDropList, ClearAllGuestsDialogComponent, DeleteGuestDialogComponent, DialogModule, GuestInfoDialogComponent, GuestRowComponent, GuestSearchFilterComponent, LucidePlus, LucideTrash2, LucideUsersRound],
   selector: 'app-guest-list',
   standalone: true,
   templateUrl: './guest-list.component.html',
@@ -34,6 +36,7 @@ export class GuestListComponent {
 
   readonly filters: GuestFilter[] = ['Everyone', 'Unseated', 'Confirmed'];
   protected readonly addGuestDialogVisible = signal(false);
+  protected readonly clearAllConfirmationVisible = signal(false);
   protected readonly guestInfo = signal<Guest | null>(null);
   protected readonly guestToDelete = signal<Guest | null>(null);
   protected readonly deleteConfirmationVisible = signal(false);
@@ -48,6 +51,22 @@ export class GuestListComponent {
 
   protected closeAddGuestDialog(): void {
     this.addGuestDialogVisible.set(false);
+  }
+
+  protected requestClearAllGuests(): void {
+    this.clearAllConfirmationVisible.set(true);
+  }
+
+  protected cancelClearAllGuests(): void {
+    this.clearAllConfirmationVisible.set(false);
+  }
+
+  protected confirmClearAllGuests(): void {
+    this.guestsChanged.emit([]);
+    this.selectionChanged.emit(null);
+    this.guestInfo.set(null);
+    this.cancelDelete();
+    this.cancelClearAllGuests();
   }
 
   protected addGuest(guest: GuestDraft): void {
@@ -127,5 +146,6 @@ export class GuestListComponent {
     if (!guest) return;
     this.deleteGuest(guest.id);
     this.cancelDelete();
+    this.closeGuestInfo();
   }
 }

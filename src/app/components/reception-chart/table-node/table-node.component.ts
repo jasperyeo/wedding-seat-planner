@@ -1,26 +1,31 @@
-import { ChangeDetectionStrategy, Component, input, output, signal } from '@angular/core';
-import { CdkDrag, CdkDragEnd } from '@angular/cdk/drag-drop';
+import { ChangeDetectionStrategy, Component, ElementRef, inject, input, output, signal } from '@angular/core';
 import { Guest, SeatTable } from '../../../models/seating';
 import { DeleteTableDialogComponent } from './delete-table-dialog/delete-table-dialog.component';
 import { TableInfoDialogComponent } from './table-info-dialog/table-info-dialog.component';
 
 @Component({
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CdkDrag, DeleteTableDialogComponent, TableInfoDialogComponent],
+  imports: [DeleteTableDialogComponent, TableInfoDialogComponent],
   selector: 'app-table-node',
   standalone: true,
   templateUrl: './table-node.component.html',
 })
 export class TableNodeComponent {
+  private readonly host = inject(ElementRef<HTMLElement>);
+
   readonly table = input.required<SeatTable>();
   readonly guests = input.required<Guest[]>();
   readonly selectedGuestId = input.required<number | null>();
 
   readonly assignRequested = output<number>();
   readonly deleteRequested = output<number>();
+  readonly clearRequested = output<number>();
+  readonly unseatGuestRequested = output<number>();
   readonly positionChanged = output<{ x: number; y: number }>();
 
   private suppressClick = false;
+  private pointerDrag: { pointerId: number; startX: number; startY: number; position: { x: number; y: number }; moved: boolean } | null = null;
+  protected readonly dragPosition = signal<{ x: number; y: number } | null>(null);
   protected readonly infoVisible = signal(false);
   protected readonly deleteConfirmationVisible = signal(false);
 
@@ -30,6 +35,22 @@ export class TableNodeComponent {
 
   protected seatCount(): number {
     return this.guestsAt().length;
+  }
+
+  protected leftPx(): number {
+    return this.coordinatePx(this.dragPosition()?.x ?? this.table().position.x, 'width') - 71 * this.tableScaleX();
+  }
+
+  protected topPx(): number {
+    return this.coordinatePx(this.dragPosition()?.y ?? this.table().position.y, 'height') - 71.5 * this.tableScaleY();
+  }
+
+  protected tableScale(): string {
+    return `${this.tableScaleX()} ${this.tableScaleY()}`;
+  }
+
+  protected tableDragging(): boolean {
+    return this.dragPosition() !== null;
   }
 
   protected handleClick(): void {
@@ -60,6 +81,14 @@ export class TableNodeComponent {
     this.deleteConfirmationVisible.set(true);
   }
 
+  protected clearTable(): void {
+    this.clearRequested.emit(this.table().id);
+  }
+
+  protected unseatGuest(guestId: number): void {
+    this.unseatGuestRequested.emit(guestId);
+  }
+
   protected cancelDelete(): void {
     this.deleteConfirmationVisible.set(false);
   }
@@ -69,48 +98,87 @@ export class TableNodeComponent {
     this.cancelDelete();
   }
 
-  protected handleDragStarted(): void {
-    this.suppressClick = true;
+  protected beginPointerDrag(event: PointerEvent): void {
+    if (event.button !== 0) return;
+    const container = this.host.nativeElement.closest('.floorplan') as HTMLElement | null;
+    if (!container) return;
+
+    this.pointerDrag = {
+      pointerId: event.pointerId,
+      startX: event.clientX,
+      startY: event.clientY,
+      position: { ...this.table().position },
+      moved: false,
+    };
+    (event.currentTarget as HTMLElement).setPointerCapture(event.pointerId);
   }
 
-  protected handleDragEnded(event: CdkDragEnd): void {
-    const container = document.querySelector('.floorplan') as HTMLElement | null;
-    if (!container) {
-      window.setTimeout(() => { this.suppressClick = false; }, 0);
-      return;
-    }
+  protected movePointerDrag(event: PointerEvent): void {
+    const drag = this.pointerDrag;
+    if (!drag || drag.pointerId !== event.pointerId) return;
 
-    const pointerEvent = event.event as PointerEvent | MouseEvent | TouchEvent | null;
-    const clientX = pointerEvent instanceof PointerEvent
-      ? pointerEvent.clientX
-      : pointerEvent instanceof MouseEvent
-        ? pointerEvent.clientX
-        : pointerEvent && 'changedTouches' in pointerEvent && pointerEvent.changedTouches.length > 0
-          ? pointerEvent.changedTouches[0].clientX
-          : null;
+    const deltaX = event.clientX - drag.startX;
+    const deltaY = event.clientY - drag.startY;
+    if (!drag.moved && Math.hypot(deltaX, deltaY) < 2) return;
+    drag.moved = true;
 
-    const clientY = pointerEvent instanceof PointerEvent
-      ? pointerEvent.clientY
-      : pointerEvent instanceof MouseEvent
-        ? pointerEvent.clientY
-        : pointerEvent && 'changedTouches' in pointerEvent && pointerEvent.changedTouches.length > 0
-          ? pointerEvent.changedTouches[0].clientY
-          : null;
+    const container = this.host.nativeElement.closest('.floorplan') as HTMLElement | null;
+    if (!container) return;
+    const halfWidth = 71 * this.tableScaleX();
+    const halfHeight = 71.5 * this.tableScaleY();
+    const width = container.clientWidth;
+    const height = container.clientHeight;
+    const centerX = this.coordinatePx(drag.position.x, 'width') + deltaX;
+    const centerY = this.coordinatePx(drag.position.y, 'height') + deltaY;
 
-    if (clientX === null || clientY === null) {
-      window.setTimeout(() => { this.suppressClick = false; }, 0);
-      return;
-    }
-
-    const containerRect = container.getBoundingClientRect();
-    const x = ((clientX - containerRect.left) / containerRect.width) * 100;
-    const y = ((clientY - containerRect.top) / containerRect.height) * 100;
-
-    this.positionChanged.emit({
-      x: Math.min(92, Math.max(8, x)),
-      y: Math.min(92, Math.max(8, y)),
+    this.dragPosition.set({
+      x: this.toPercent(Math.max(halfWidth, Math.min(width - halfWidth, centerX)), width),
+      y: this.toPercent(Math.max(halfHeight, Math.min(height - halfHeight, centerY)), height),
     });
+  }
 
-    window.setTimeout(() => { this.suppressClick = false; }, 0);
+  protected endPointerDrag(event: PointerEvent): void {
+    const drag = this.pointerDrag;
+    if (!drag || drag.pointerId !== event.pointerId) return;
+
+    if (drag.moved) {
+      const position = this.dragPosition();
+      if (position) this.positionChanged.emit(position);
+      this.suppressClick = true;
+      window.setTimeout(() => { this.suppressClick = false; }, 0);
+    }
+
+    this.pointerDrag = null;
+    this.dragPosition.set(null);
+  }
+
+  protected cancelPointerDrag(event: PointerEvent): void {
+    if (this.pointerDrag?.pointerId !== event.pointerId) return;
+    this.pointerDrag = null;
+    this.dragPosition.set(null);
+  }
+
+  private tableScaleX(): number {
+    if (window.innerWidth <= 420) return 0.59;
+    if (window.innerWidth <= 760) return 0.66;
+    if (window.innerWidth <= 1050) return 0.87;
+    return 1;
+  }
+
+  private tableScaleY(): number {
+    if (window.innerWidth <= 420) return 0.69;
+    if (window.innerWidth <= 760) return 0.77;
+    if (window.innerWidth <= 1050) return 0.87;
+    return 1;
+  }
+
+  private toPercent(pixels: number, dimension: number): number {
+    return dimension > 0 ? pixels / dimension * 100 : 0;
+  }
+
+  private coordinatePx(value: number, dimension: 'width' | 'height'): number {
+    const container = this.host.nativeElement.closest('.floorplan') as HTMLElement | null;
+    if (!container) return 0;
+    return value / 100 * (dimension === 'width' ? container.clientWidth : container.clientHeight);
   }
 }

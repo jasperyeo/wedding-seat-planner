@@ -23,7 +23,7 @@ export class AddTableDialogComponent {
   readonly tableAdded = output<TableDraft>();
 
   protected readonly tableName = signal('');
-  protected readonly capacity = signal(8);
+  protected readonly capacity = signal(10);
 
   protected close(): void {
     this.closed.emit();
@@ -33,7 +33,7 @@ export class AddTableDialogComponent {
     const capacity = Math.min(12, Math.max(2, Number(this.capacity()) || 10));
     this.tableAdded.emit({ name: this.tableName().trim(), capacity });
     this.tableName.set('');
-    this.capacity.set(8);
+    this.capacity.set(10);
     this.close();
   }
 }

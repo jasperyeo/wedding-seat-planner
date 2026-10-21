@@ -79,6 +79,52 @@ describe('App', () => {
     expect(compiled.querySelector('.guest-list')?.textContent).toContain('Taylor Morgan');
   });
 
+  it('should confirm clearing all guests from the guest list', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    compiled.querySelector<HTMLButtonElement>('[aria-label="Clear all guests"]')!.click();
+    fixture.detectChanges();
+
+    const confirmation = [...document.body.querySelectorAll<HTMLElement>('.p-dialog')].find(dialog => dialog.textContent?.includes('Clear all guests?'))!;
+    expect(confirmation.textContent).toContain('33 guests');
+    confirmation.querySelector<HTMLButtonElement>('.dialog-cancel')!.click();
+    fixture.detectChanges();
+    expect(compiled.querySelectorAll('.guest-row').length).toBe(33);
+
+    compiled.querySelector<HTMLButtonElement>('[aria-label="Clear all guests"]')!.click();
+    fixture.detectChanges();
+    const secondConfirmation = [...document.body.querySelectorAll<HTMLElement>('.p-dialog')].find(dialog => dialog.textContent?.includes('Clear all guests?'))!;
+    secondConfirmation.querySelector<HTMLButtonElement>('.dialog-danger')!.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelectorAll('.guest-row').length).toBe(0);
+    expect(compiled.querySelector('.panel-count')?.textContent).toContain('0 people');
+  });
+
+  it('should show an empty-list message only when there are no guests', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    const search = compiled.querySelector<HTMLInputElement>('[aria-label="Search guests"]')!;
+    search.value = 'No matching guest';
+    search.dispatchEvent(new Event('input', { bubbles: true }));
+    fixture.detectChanges();
+    expect(compiled.querySelector('.empty-guests')?.textContent).toContain('No guests match your search.');
+
+    compiled.querySelector<HTMLButtonElement>('[aria-label="Clear all guests"]')!.click();
+    fixture.detectChanges();
+    const confirmation = [...document.body.querySelectorAll<HTMLElement>('.p-dialog')].find(dialog => dialog.textContent?.includes('Clear all guests?'))!;
+    confirmation.querySelector<HTMLButtonElement>('.dialog-danger')!.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelector('.empty-guests')?.textContent).toContain('No guests added yet.');
+  });
+
   it('should add a table from the reception chart dialog', async () => {
     const fixture = TestBed.createComponent(App);
     await fixture.whenStable();
@@ -150,6 +196,7 @@ describe('App', () => {
 
     expect(compiled.querySelectorAll('.guest-row').length).toBe(32);
     expect(compiled.textContent).not.toContain('Olivia Bennett');
+    expect([...document.body.querySelectorAll<HTMLElement>('.p-dialog')].some(dialog => dialog.textContent?.includes('Delete guest?') || dialog.textContent?.includes('Guest information'))).toBe(false);
   });
 
   it('should return to guest information when guest deletion is cancelled', async () => {
@@ -196,6 +243,47 @@ describe('App', () => {
     expect(compiled.querySelectorAll('.table-node').length).toBe(5);
     const oliviaRow = [...compiled.querySelectorAll<HTMLElement>('.guest-row')].find(row => row.textContent?.includes('Olivia Bennett'))!;
     expect(oliviaRow.querySelector('.guest-table')?.textContent?.trim()).toBe('—');
+  });
+
+  it('should clear a table and unseat its guests without deleting the table', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    compiled.querySelector<HTMLButtonElement>('.table-node')!.click();
+    fixture.detectChanges();
+
+    const infoDialog = [...document.body.querySelectorAll<HTMLElement>('.p-dialog')].find(dialog => dialog.textContent?.includes('Table information'))!;
+    expect(infoDialog.textContent).toContain('Olivia Bennett');
+    [...infoDialog.querySelectorAll<HTMLButtonElement>('button')].find(button => button.textContent?.includes('Clear table'))!.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelectorAll('.table-node').length).toBe(6);
+    const oliviaRow = [...compiled.querySelectorAll<HTMLElement>('.guest-row')].find(row => row.textContent?.includes('Olivia Bennett'))!;
+    expect(oliviaRow.querySelector('.guest-table')?.textContent?.trim()).toBe('—');
+    expect(infoDialog.textContent).not.toContain('Olivia Bennett');
+  });
+
+  it('should unseat only the selected guest from table information', async () => {
+    const fixture = TestBed.createComponent(App);
+    await fixture.whenStable();
+    fixture.detectChanges();
+    const compiled = fixture.nativeElement as HTMLElement;
+
+    compiled.querySelector<HTMLButtonElement>('.table-node')!.click();
+    fixture.detectChanges();
+    const infoDialog = [...document.body.querySelectorAll<HTMLElement>('.p-dialog')].find(dialog => dialog.textContent?.includes('Table information'))!;
+    infoDialog.querySelector<HTMLButtonElement>('[aria-label="Unseat Olivia Bennett"]')!.click();
+    fixture.detectChanges();
+
+    expect(compiled.querySelectorAll('.table-node').length).toBe(6);
+    expect(infoDialog.textContent).not.toContain('Olivia Bennett');
+    expect(infoDialog.textContent).toContain('James Bennett');
+    const oliviaRow = [...compiled.querySelectorAll<HTMLElement>('.guest-row')].find(row => row.textContent?.includes('Olivia Bennett'))!;
+    const jamesRow = [...compiled.querySelectorAll<HTMLElement>('.guest-row')].find(row => row.textContent?.includes('James Bennett'))!;
+    expect(oliviaRow.querySelector('.guest-table')?.textContent?.trim()).toBe('—');
+    expect(jamesRow.querySelector('.guest-table')?.textContent?.trim()).toBe('T1');
   });
 
   it('should return to table information when table deletion is cancelled', async () => {
